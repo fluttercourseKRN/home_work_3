@@ -3,8 +3,8 @@ import 'package:blackout_tracker/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../controllers/device_info_manager.dart';
-import 'list_tile_info_record.dart';
+import '../../controllers/device_info_manager.dart';
+import 'tile_base_info_record.dart';
 
 class TileCurrentInfoRecord extends StatelessWidget {
   const TileCurrentInfoRecord({
@@ -32,7 +32,7 @@ class TileCurrentInfoRecord extends StatelessWidget {
                       "Current status",
                     ),
                   ),
-                  ListTileInfoRecord(
+                  TileBaseInfoRecord(
                     dateFormat: Utils.dateTimeWithSecFormat,
                     infoRecord: snapshot.data!,
                   ),

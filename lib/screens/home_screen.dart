@@ -1,16 +1,14 @@
 import 'package:blackout_tracker/controllers/data_repository.dart';
 import 'package:blackout_tracker/model/info_record.dart';
-import 'package:blackout_tracker/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/device_info_manager.dart';
-import '../widgets/list_tile_info_record.dart';
 import '../widgets/menu_widget.dart';
-import '../widgets/tile_current_info_record.dart';
+import '../widgets/tile_widgets/tile_current_info_record.dart';
+import '../widgets/tile_widgets/tile_list_info_record.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -70,32 +68,7 @@ class HomeScreen extends StatelessWidget {
                           itemCount: infoRecords.length,
                           itemBuilder: (context, index) {
                             final infoRecord = infoRecords[index];
-                            return Slidable(
-                              key: ValueKey(infoRecord.id),
-                              endActionPane: ActionPane(
-                                  motion: const ScrollMotion(),
-                                  extentRatio: 0.2,
-                                  children: [
-                                    SlidableAction(
-                                      onPressed: (context) {
-                                        DataRepository.read(context)
-                                            .removeRecord(infoRecord.id);
-                                      },
-                                      backgroundColor: const Color(0xFFFE4A49),
-                                      foregroundColor: Colors.white,
-                                      icon: Icons.delete,
-                                      label: 'Delete',
-                                    )
-                                  ]),
-                              child: Card(
-                                elevation: 8,
-                                color: Colors.grey.withAlpha(Utils.opacity),
-                                child: ListTileInfoRecord(
-                                  infoRecord: infoRecord,
-                                  dateFormat: Utils.dateTimeFormat,
-                                ),
-                              ),
-                            );
+                            return TileListInfoRecord(infoRecord: infoRecord);
                           },
                         );
                       } else {
