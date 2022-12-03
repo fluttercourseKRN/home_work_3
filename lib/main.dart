@@ -12,7 +12,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  BlackOutManager.init();
+  await BlackOutManager.init();
   runApp(const MyApp());
 }
 
@@ -23,13 +23,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Blackout manager',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: ChangeNotifierProvider<DataRepository>.value(
-        value: DataRepository.getRepository,
-        child: const HomeScreen(),
-      ),
-    );
+        title: 'Blackout manager',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<DataRepository>.value(
+              value: DataRepository.getRepository,
+            ),
+            ChangeNotifierProvider<BlackOutManager>.value(
+              value: BlackOutManager.getManager,
+            )
+          ],
+          child: const HomeScreen(),
+        ));
   }
 }

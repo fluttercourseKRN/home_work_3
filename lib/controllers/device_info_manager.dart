@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 
 import '../model/info_record.dart';
@@ -11,20 +12,22 @@ class DeviceInfoManager {
   DeviceInfoManager._internal();
 
   static Future<String> get deviceId async {
+    final deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.id;
     } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.identifierForVendor!;
     } else {
       throw Exception("Unsupported platform");
     }
-    return "";
   }
 
   static Stream<InfoRecord> getRealtimeInfo() async* {
     yield* Stream.periodic(
       const Duration(seconds: 1),
-      (_) {
-        return getCurrentInfo();
-      },
+      (_) => getCurrentInfo(),
     ).asyncMap((event) async => await event);
   }
 

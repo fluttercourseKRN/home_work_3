@@ -1,7 +1,9 @@
+import 'package:blackout_tracker/controllers/blackout_manager.dart';
 import 'package:blackout_tracker/widgets/stand_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../controllers/device_info_manager.dart';
 import 'app_toggle_buttons.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -11,7 +13,6 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> values = ["30 m", "1h", "6 h", "12 h"];
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -19,6 +20,7 @@ class AppDrawer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: DrawerHeader(
@@ -57,7 +59,13 @@ class AppDrawer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("Enable auto save for device"),
-                  Switch(value: true, onChanged: (val) {}),
+                  Switch(
+                      value:
+                          BlackOutManager.watch(context).isAutoSnapshotEnabled,
+                      onChanged: (val) {
+                        BlackOutManager.read(context).isAutoSnapshotEnabled =
+                            val;
+                      }),
                 ],
               ),
               const Divider(),
@@ -67,13 +75,33 @@ class AppDrawer extends StatelessWidget {
                   const Text("Periodic backup time"),
                   const SizedBox(height: 8),
                   AppToggleButtons(
-                    onChange: (value) {},
-                    defaultValue: values.first,
-                    values: values,
+                    onChange: (value) {
+                      BlackOutManager.read(context).autoSnapshotInterval =
+                          value;
+                    },
+                    defaultValue:
+                        BlackOutManager.getManager.autoSnapshotInterval,
+                    values: BlackOutManager.snapshotTimeRange,
                   )
                 ],
               ),
               const Spacer(),
+              FutureBuilder<String>(
+                future: DeviceInfoManager.deviceId,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done &&
+                      snapshot.data != null) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        "Device id: ${snapshot.data!}",
+                      ),
+                    );
+                  } else {
+                    return const Text("Device id:");
+                  }
+                },
+              ),
               const Divider(),
               const Padding(
                 padding: EdgeInsets.all(4.0),
