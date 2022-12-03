@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/device_info_manager.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/menu_widget.dart';
 import '../widgets/tile_widgets/tile_current_info_record.dart';
 import '../widgets/tile_widgets/tile_list_info_record.dart';
@@ -16,6 +17,14 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "BlackOut Tracker",
+          style: GoogleFonts.kaushanScript(
+              textStyle: Theme.of(context).textTheme.headline4),
+        ),
+      ),
+      drawer: const AppDrawer(),
       floatingActionButton: ElevatedButton(
         onPressed: () async {
           final newRecord = await DeviceInfoManager.getCurrentInfo();
@@ -38,11 +47,11 @@ class HomeScreen extends StatelessWidget {
               ),
               Column(
                 children: [
-                  Text(
-                    "BlackOut Tracker",
-                    style: GoogleFonts.kaushanScript(
-                        textStyle: Theme.of(context).textTheme.headline3),
-                  ),
+                  // Text(
+                  //   "BlackOut Tracker",
+                  //   style: GoogleFonts.kaushanScript(
+                  //       textStyle: Theme.of(context).textTheme.headline3),
+                  // ),
                   const SizedBox(height: 16),
                   const TileCurrentInfoRecord(),
                   const SizedBox(height: 16),

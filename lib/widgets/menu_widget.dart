@@ -2,7 +2,7 @@ import 'package:blackout_tracker/controllers/data_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/utils.dart';
-import 'toggle_days_buttons.dart';
+import 'app_toggle_buttons.dart';
 
 class MenuWidget extends StatelessWidget {
   const MenuWidget({
@@ -35,7 +35,7 @@ class MenuWidget extends StatelessWidget {
           child: Text(
               Utils.dateFormat.format(DataRepository.watch(context).dateTime)),
         ),
-        ToggleDaysButtons(
+        AppToggleButtons(
           onChange: (value) {
             DataRepository.read(context).limit = value;
           },

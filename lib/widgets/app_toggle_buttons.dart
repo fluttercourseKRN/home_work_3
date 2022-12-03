@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-class ToggleDaysButtons extends StatefulWidget {
-  const ToggleDaysButtons({
+class AppToggleButtons<T> extends StatefulWidget {
+  const AppToggleButtons({
     Key? key,
     required this.onChange,
     required this.defaultValue,
     required this.values,
   }) : super(key: key);
 
-  final void Function(int days) onChange;
-  final int defaultValue;
-  final List<int> values;
+  final void Function(T value) onChange;
+  final T defaultValue;
+  final List<T> values;
 
   @override
-  State<ToggleDaysButtons> createState() => _ToggleDaysButtonsState();
+  State<AppToggleButtons<T>> createState() => _AppToggleButtonsState<T>();
 }
 
-class _ToggleDaysButtonsState extends State<ToggleDaysButtons> {
-  final Map<int, bool> toggles = {};
+class _AppToggleButtonsState<T> extends State<AppToggleButtons<T>> {
+  final Map<T, bool> toggles = {};
 
   @override
   void initState() {
