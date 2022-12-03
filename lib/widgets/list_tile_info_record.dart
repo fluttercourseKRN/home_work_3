@@ -1,6 +1,6 @@
-import 'package:blackout_tracker/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 import '../model/info_record.dart';
 import 'title_status_element.dart';
@@ -9,10 +9,11 @@ class ListTileInfoRecord extends StatelessWidget {
   const ListTileInfoRecord({
     Key? key,
     required this.infoRecord,
+    required this.dateFormat,
   }) : super(key: key);
 
   final InfoRecord infoRecord;
-
+  final DateFormat dateFormat;
   Gradient _getColorForBatteryLevel(int batteryLevel) {
     if (batteryLevel < 25) {
       return LinearGradient(
@@ -67,7 +68,7 @@ class ListTileInfoRecord extends StatelessWidget {
         ],
       ),
       subtitle: Text(
-        "Snapshot date:   ${Utils.dateTimeFormat.format(infoRecord.dateTime)}",
+        "Snapshot date:   ${dateFormat.format(infoRecord.dateTime)}",
         style: Theme.of(context).textTheme.bodyMedium,
         textAlign: TextAlign.right,
       ),

@@ -22,7 +22,7 @@ class DeviceInfoManager {
   static Stream<InfoRecord> getRealtimeInfo() async* {
     yield* Stream.periodic(
       const Duration(seconds: 1),
-      (computationCount) {
+      (_) {
         return getCurrentInfo();
       },
     ).asyncMap((event) async => await event);

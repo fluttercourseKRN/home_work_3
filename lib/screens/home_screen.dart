@@ -90,8 +90,10 @@ class HomeScreen extends StatelessWidget {
                               child: Card(
                                 elevation: 8,
                                 color: Colors.grey.withAlpha(Utils.opacity),
-                                child:
-                                    ListTileInfoRecord(infoRecord: infoRecord),
+                                child: ListTileInfoRecord(
+                                  infoRecord: infoRecord,
+                                  dateFormat: Utils.dateTimeFormat,
+                                ),
                               ),
                             );
                           },

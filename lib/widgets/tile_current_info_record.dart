@@ -1,4 +1,5 @@
 import 'package:blackout_tracker/model/info_record.dart';
+import 'package:blackout_tracker/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -12,11 +13,10 @@ class TileCurrentInfoRecord extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<InfoRecord>(
-      future: DeviceInfoManager.getCurrentInfo(),
+    return StreamBuilder<InfoRecord>(
+      stream: DeviceInfoManager.getRealtimeInfo(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.data != null) {
+        if (snapshot.hasData) {
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -32,7 +32,10 @@ class TileCurrentInfoRecord extends StatelessWidget {
                       "Current status",
                     ),
                   ),
-                  ListTileInfoRecord(infoRecord: snapshot.data!),
+                  ListTileInfoRecord(
+                    dateFormat: Utils.dateTimeWithSecFormat,
+                    infoRecord: snapshot.data!,
+                  ),
                 ],
               ),
             ),
