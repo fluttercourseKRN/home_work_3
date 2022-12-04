@@ -23,6 +23,7 @@ class BlackOutManager extends ChangeNotifier {
 
   static Future<void> init() async {
     _instance.autoSnapshotInterval = snapshotTimeRange.first;
+    _instance.deviceId = await DeviceInfoManager.deviceId;
     // Workmanager().initialize(callbackDispatcher);
     // Workmanager().registerPeriodicTask(
     //   "1",
@@ -31,6 +32,7 @@ class BlackOutManager extends ChangeNotifier {
     // );
   }
 
+  late final String deviceId;
   // Callback what create new InfoRecord
   Future<void> callbackDispatcher() async {
     createNewRecord();

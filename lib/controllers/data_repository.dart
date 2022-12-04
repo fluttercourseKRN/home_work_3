@@ -1,3 +1,4 @@
+import 'package:blackout_tracker/controllers/blackout_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,15 +41,23 @@ class DataRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  CollectionReference<Map<String, dynamic>> get _getCollectionPath {
-    return FirebaseFirestore.instance.collection("infoRecords");
+  static const _basePath = "devices";
+  static const _recordsPath = "infoRecords";
+  CollectionReference<Map<String, dynamic>> get _getDeviceDataPath {
+    return FirebaseFirestore.instance.collection(_basePath);
+  }
+
+  CollectionReference<Map<String, dynamic>> get _getInfoRecordsPath {
+    return _getDeviceDataPath
+        .doc(BlackOutManager.getManager.deviceId)
+        .collection(_recordsPath);
   }
 
   Future<List<InfoRecord>> getRecords() async {
     final startDate = DateUtils.dateOnly(_dateTime);
     final endDate = DateUtils.addDaysToDate(startDate, 1);
 
-    final snapshot = await _getCollectionPath
+    final snapshot = await _getInfoRecordsPath
         .where(
           "dateTime",
           isGreaterThanOrEqualTo: startDate,
@@ -60,12 +69,12 @@ class DataRepository extends ChangeNotifier {
   }
 
   Future<void> addNewRecord(InfoRecord record) async {
-    await _getCollectionPath.doc(record.id).set(record.toMap());
+    await _getInfoRecordsPath.doc(record.id).set(record.toMap());
     notifyListeners();
   }
 
   Future<void> removeRecord(String recordId) async {
-    await _getCollectionPath.doc(recordId).delete();
+    await _getInfoRecordsPath.doc(recordId).delete();
     notifyListeners();
   }
 }

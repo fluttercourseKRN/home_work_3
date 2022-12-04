@@ -3,7 +3,6 @@ import 'package:blackout_tracker/widgets/stand_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../controllers/device_info_manager.dart';
 import 'app_toggle_buttons.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -86,22 +85,7 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              FutureBuilder<String>(
-                future: DeviceInfoManager.deviceId,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.data != null) {
-                    return Align(
-                      alignment: Alignment.topLeft,
-                      child: Text(
-                        "Device id: ${snapshot.data!}",
-                      ),
-                    );
-                  } else {
-                    return const Text("Device id:");
-                  }
-                },
-              ),
+              Text("Device id: ${BlackOutManager.getManager.deviceId}"),
               const Divider(),
               const Padding(
                 padding: EdgeInsets.all(4.0),
