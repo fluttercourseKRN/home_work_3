@@ -1,3 +1,4 @@
+import 'package:blackout_tracker/controllers/blackout_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -22,7 +23,10 @@ class TileListInfoRecord extends StatelessWidget {
           ActionPane(motion: const ScrollMotion(), extentRatio: 0.2, children: [
         SlidableAction(
           onPressed: (context) {
-            DataRepository.read(context).removeRecord(infoRecord.id);
+            DataRepository.read(context).removeRecord(
+              deviceId: BlackOutManager.getManager.deviceId,
+              recordId: infoRecord.id,
+            );
           },
           backgroundColor: const Color(0xFFFE4A49),
           foregroundColor: Colors.white,

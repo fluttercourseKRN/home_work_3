@@ -33,7 +33,10 @@ class BlackOutManager extends ChangeNotifier {
       switch (taskName) {
         case _createInfoRow:
           final newRecord = await DeviceInfoManager.getCurrentInfo();
-          DataRepository.getRepository.addNewRecord(newRecord);
+          DataRepository.getRepository.addNewRecord(
+            deviceId: _instance.deviceId,
+            record: newRecord,
+          );
           break;
       }
       return true;

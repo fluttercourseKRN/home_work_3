@@ -1,3 +1,4 @@
+import 'package:blackout_tracker/controllers/blackout_manager.dart';
 import 'package:blackout_tracker/controllers/data_repository.dart';
 import 'package:blackout_tracker/model/info_record.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,10 @@ class HomeScreen extends StatelessWidget {
       floatingActionButton: ElevatedButton(
         onPressed: () async {
           final newRecord = await DeviceInfoManager.getCurrentInfo();
-          DataRepository.getRepository.addNewRecord(newRecord);
+          DataRepository.getRepository.addNewRecord(
+            deviceId: BlackOutManager.getManager.deviceId,
+            record: newRecord,
+          );
         },
         child: const Text("Add Current Info"),
       ),
@@ -67,7 +71,8 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   FutureBuilder<List<InfoRecord>>(
-                    future: DataRepository.watch(context).getRecords(),
+                    future: DataRepository.watch(context).getRecords(
+                        deviceId: BlackOutManager.getManager.deviceId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done &&
                           snapshot.data != null) {

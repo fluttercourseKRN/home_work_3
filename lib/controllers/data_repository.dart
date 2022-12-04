@@ -1,8 +1,8 @@
-import 'package:blackout_tracker/controllers/blackout_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../model/device_stored_preference.dart';
 import '../model/info_record.dart';
 
 class DataRepository extends ChangeNotifier {
@@ -43,21 +43,20 @@ class DataRepository extends ChangeNotifier {
 
   static const _basePath = "devices";
   static const _recordsPath = "infoRecords";
-  CollectionReference<Map<String, dynamic>> get _getDeviceDataPath {
-    return FirebaseFirestore.instance.collection(_basePath);
+  DocumentReference<Map<String, dynamic>> _getDeviceDataPath(String deviceId) {
+    return FirebaseFirestore.instance.collection(_basePath).doc(deviceId);
   }
 
-  CollectionReference<Map<String, dynamic>> get _getInfoRecordsPath {
-    return _getDeviceDataPath
-        .doc(BlackOutManager.getManager.deviceId)
-        .collection(_recordsPath);
+  CollectionReference<Map<String, dynamic>> _getInfoRecordsPath(
+      String deviceId) {
+    return _getDeviceDataPath(deviceId).collection(_recordsPath);
   }
 
-  Future<List<InfoRecord>> getRecords() async {
+  Future<List<InfoRecord>> getRecords({required String deviceId}) async {
     final startDate = DateUtils.dateOnly(_dateTime);
     final endDate = DateUtils.addDaysToDate(startDate, 1);
 
-    final snapshot = await _getInfoRecordsPath
+    final snapshot = await _getInfoRecordsPath(deviceId)
         .where(
           "dateTime",
           isGreaterThanOrEqualTo: startDate,
@@ -68,13 +67,26 @@ class DataRepository extends ChangeNotifier {
     return snapshot.docs.map((e) => InfoRecord.fromMap(e.data())).toList();
   }
 
-  Future<void> addNewRecord(InfoRecord record) async {
-    await _getInfoRecordsPath.doc(record.id).set(record.toMap());
+  Future<void> addNewRecord({
+    required String deviceId,
+    required InfoRecord record,
+  }) async {
+    await _getInfoRecordsPath(deviceId).doc(record.id).set(record.toMap());
     notifyListeners();
   }
 
-  Future<void> removeRecord(String recordId) async {
-    await _getInfoRecordsPath.doc(recordId).delete();
+  Future<void> removeRecord(
+      {required String deviceId, required String recordId}) async {
+    await _getInfoRecordsPath(deviceId).doc(recordId).delete();
     notifyListeners();
+  }
+
+  Future<DeviceStoredPreference?> loadDevicePrefs(String deviceId) async {
+    return null;
+  }
+
+  Future<DeviceStoredPreference?> saveDevicePrefs(
+      DeviceStoredPreference prefs) async {
+    return null;
   }
 }
