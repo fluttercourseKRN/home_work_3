@@ -51,21 +51,23 @@ class TileBaseInfoRecord extends StatelessWidget {
           ),
         ),
       ),
-      title: Row(
-        children: [
-          TileStatusElement(
-            icon: FontAwesomeIcons.plugCircleBolt,
-            status: infoRecord.isCharging,
-          ),
-          TileStatusElement(
-            icon: FontAwesomeIcons.wifi,
-            status: infoRecord.isWirelessConnect,
-          ),
-          TileStatusElement(
-            icon: FontAwesomeIcons.globe,
-            status: infoRecord.isInternetConnect,
-          ),
-        ],
+      title: FittedBox(
+        child: Row(
+          children: [
+            TileStatusElement(
+              icon: FontAwesomeIcons.plugCircleBolt,
+              status: infoRecord.isCharging,
+            ),
+            TileStatusElement(
+              icon: FontAwesomeIcons.wifi,
+              status: infoRecord.isWirelessConnect,
+            ),
+            TileStatusElement(
+              icon: FontAwesomeIcons.globe,
+              status: infoRecord.isInternetConnect,
+            ),
+          ],
+        ),
       ),
       subtitle: Text(
         "Snapshot date:   ${dateFormat.format(infoRecord.dateTime)}",

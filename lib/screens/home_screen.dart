@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../controllers/device_info_manager.dart';
 import '../widgets/app_drawer.dart';
@@ -14,6 +15,36 @@ import '../widgets/tile_widgets/tile_list_info_record.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  _requestPermission(BuildContext context) {
+    Permission.locationAlways.status.then((value) {
+      if (value == PermissionStatus.denied) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Not Allow"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    openAppSettings();
+                  },
+                  child: const Text("Allow"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      print(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

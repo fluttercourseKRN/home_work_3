@@ -4,7 +4,9 @@ import 'package:blackout_tracker/screens/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 
+import 'controllers/device_info_manager.dart';
 import 'utils/firebase_options.dart';
 
 Future<void> main() async {
@@ -14,6 +16,15 @@ Future<void> main() async {
   );
   await BlackOutManager.init();
   runApp(const MyApp());
+}
+
+@pragma('vm:entry-point')
+void callbackDispatcher() async {
+  Workmanager().executeTask((taskName, inputData) async {
+    final newRecord = await DeviceInfoManager.getCurrentInfo();
+    DataRepository.saveDataLocally(newRecord);
+    return Future.value(true);
+  });
 }
 
 class MyApp extends StatelessWidget {

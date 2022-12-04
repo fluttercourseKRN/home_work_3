@@ -1,28 +1,52 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/device_stored_preference.dart';
 import '../model/info_record.dart';
 
 class DataRepository extends ChangeNotifier {
+  /// MARK: Singleton
   DataRepository._internal();
-
   static final DataRepository _instance = DataRepository._internal();
+  static DataRepository get getRepository => _instance;
 
-  static DataRepository get getRepository {
-    return _instance;
-  }
-
-  static DataRepository read(BuildContext context) {
-    return context.read<DataRepository>();
-  }
-
-  static DataRepository watch(BuildContext context) {
-    return context.watch<DataRepository>();
-  }
+  /// MARK: Provider method
+  static DataRepository read(BuildContext context) =>
+      context.read<DataRepository>();
+  static DataRepository watch(BuildContext context) =>
+      context.watch<DataRepository>();
 
   static const List<int> limitDaysRange = [10, 20, 50];
+  static const localDataKey = "InfoRows";
+
+  static Future<void> saveDataLocally(InfoRecord record) async {
+    final prefs = await SharedPreferences.getInstance();
+    final rows = prefs.getStringList(localDataKey) ?? [];
+    rows.add(const JsonEncoder().convert(record.toMap()));
+    prefs.setStringList(localDataKey, rows);
+  }
+
+  static Future<int> locallySavedCount(String deviceId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final rows = prefs.getStringList(localDataKey) ?? [];
+    return rows.length;
+  }
+
+  static Future<void> synchronize(String deviceId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final rows = prefs.getStringList(localDataKey) ?? [];
+    if (rows.isNotEmpty) {
+      FirebaseFirestore.instance
+          .runTransaction((transaction) async => (transaction) {
+                return true;
+              });
+      // prefs.clear();
+    }
+  }
 
   int _limit = limitDaysRange.first;
   int get limit => _limit;
@@ -75,18 +99,29 @@ class DataRepository extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> removeRecord(
-      {required String deviceId, required String recordId}) async {
+  Future<void> removeRecord({
+    required String deviceId,
+    required String recordId,
+  }) async {
     await _getInfoRecordsPath(deviceId).doc(recordId).delete();
     notifyListeners();
   }
 
-  Future<DeviceStoredPreference?> loadDevicePrefs(String deviceId) async {
-    return null;
+  Future<DeviceStoredPreference?> loadDevicePrefs({
+    required String deviceId,
+  }) async {
+    final snapshot = await _getDeviceDataPath(deviceId).get();
+    if (snapshot.data() != null) {
+      return DeviceStoredPreference.fromMap(snapshot.data()!);
+    } else {
+      return null;
+    }
   }
 
-  Future<DeviceStoredPreference?> saveDevicePrefs(
-      DeviceStoredPreference prefs) async {
-    return null;
+  Future<void> saveDevicePrefs({
+    required String deviceId,
+    required DeviceStoredPreference prefs,
+  }) async {
+    await _getDeviceDataPath(deviceId).set(prefs.toMap());
   }
 }

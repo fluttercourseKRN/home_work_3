@@ -1,4 +1,5 @@
 import 'package:blackout_tracker/controllers/blackout_manager.dart';
+import 'package:blackout_tracker/controllers/data_repository.dart';
 import 'package:blackout_tracker/widgets/stand_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -85,6 +86,15 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
               const Spacer(),
+              FutureBuilder<int>(
+                  future: DataRepository.locallySavedCount(
+                      BlackOutManager.getManager.deviceId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return Text("Locally saved count: ${snapshot.data!}");
+                    }
+                    return const Text("Locally saved count: 0");
+                  }),
               Text("Device id: ${BlackOutManager.getManager.deviceId}"),
               const Divider(),
               const Padding(
