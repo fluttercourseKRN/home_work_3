@@ -1,88 +1,78 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
+import 'package:workmanager/workmanager.dart';
 
+import '../utils/duration_string_converter_ext.dart';
 import 'data_repository.dart';
 import 'device_info_manager.dart';
 
 class BlackOutManager extends ChangeNotifier {
   BlackOutManager._internal();
-
   static final BlackOutManager _instance = BlackOutManager._internal();
+  static BlackOutManager get getManager => _instance;
 
-  static BlackOutManager get getManager {
-    return _instance;
-  }
+  static BlackOutManager read(BuildContext context) =>
+      context.read<BlackOutManager>();
+  static BlackOutManager watch(BuildContext context) =>
+      context.watch<BlackOutManager>();
 
-  static BlackOutManager read(BuildContext context) {
-    return context.read<BlackOutManager>();
-  }
-
-  static BlackOutManager watch(BuildContext context) {
-    return context.watch<BlackOutManager>();
-  }
-
+  ///MARK: Workmanager private method
+  static const _createInfoRow = "createInfoRow";
+  final Workmanager workmanager = Workmanager();
   static Future<void> init() async {
     _instance.autoSnapshotInterval = snapshotTimeRange.first;
+
     _instance.deviceId = await DeviceInfoManager.deviceId;
-    // Workmanager().initialize(callbackDispatcher);
-    // Workmanager().registerPeriodicTask(
-    //   "1",
-    //   "createInfoRow",
-    //   frequency: const Duration(minutes: 15),
+    // await _instance.workmanager.initialize(
+    //   callbackDispatcher,
     // );
   }
 
+  static Future<void> _callbackDispatcher() async {
+    Workmanager().executeTask((taskName, inputData) async {
+      switch (taskName) {
+        case _createInfoRow:
+          final newRecord = await DeviceInfoManager.getCurrentInfo();
+          DataRepository.getRepository.addNewRecord(newRecord);
+          break;
+      }
+      return true;
+    });
+  }
+
+  Future<void> _changeWorkmanagerStatus() async {
+    await _cancelWorkmanager();
+    if (_instance._isAutoSnapshotEnabled == true) {
+      await _setUpWorkmanager(_instance._autoSnapshotInterval);
+    }
+  }
+
+  Future<void> _cancelWorkmanager() async => await Workmanager().cancelAll();
+  Future<void> _setUpWorkmanager(Duration timeInterval) async {
+    await Workmanager().registerPeriodicTask(
+      "1",
+      _createInfoRow,
+      frequency: timeInterval,
+    );
+  }
+
+  ///MARK: Public API
   late final String deviceId;
-  // Callback what create new InfoRecord
-  Future<void> callbackDispatcher() async {
-    createNewRecord();
-    // print("Hello");
-  }
-
   static const List<String> snapshotTimeRange = ["30m", "1h", "6h", "12h"];
+
   late Duration _autoSnapshotInterval;
-
-  String get autoSnapshotInterval {
-    int allMinutes = _autoSnapshotInterval.inMinutes;
-    StringBuffer buffer = StringBuffer();
-
-    int hours = allMinutes ~/ 60;
-    int minutes = allMinutes % 60;
-    if (hours != 0) {
-      buffer.writeAll([hours, "h"]);
-    }
-    if (minutes != 0) {
-      buffer.writeAll([" ", minutes, "m"]);
-    }
-    return buffer.toString().trim();
-  }
-
+  String get autoSnapshotInterval => _autoSnapshotInterval.convertToString();
   set autoSnapshotInterval(String value) {
-    int? hours;
-    int? minutes;
-    List<String> timeParts = value.split(" ");
-    for (final part in timeParts) {
-      if (part.endsWith("h")) {
-        hours = int.tryParse(part.replaceFirst("h", ""));
-      }
-      if (part.endsWith("m")) {
-        minutes = int.tryParse(part.replaceFirst("m", ""));
-      }
-    }
-    _autoSnapshotInterval = Duration(hours: hours ?? 0, minutes: minutes ?? 0);
+    _autoSnapshotInterval = DurationStringConverter.fromString(value);
+    _changeWorkmanagerStatus();
     notifyListeners();
   }
 
   bool _isAutoSnapshotEnabled = false;
-
   bool get isAutoSnapshotEnabled => _isAutoSnapshotEnabled;
   set isAutoSnapshotEnabled(bool value) {
     _isAutoSnapshotEnabled = value;
+    _changeWorkmanagerStatus();
     notifyListeners();
-  }
-
-  Future<void> createNewRecord() async {
-    final newRecord = await DeviceInfoManager.getCurrentInfo();
-    DataRepository.getRepository.addNewRecord(newRecord);
   }
 }
