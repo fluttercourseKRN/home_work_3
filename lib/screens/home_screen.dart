@@ -16,38 +16,9 @@ import '../widgets/tile_widgets/tile_list_info_record.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  _requestPermission(BuildContext context) {
-    Permission.locationAlways.status.then((value) {
-      if (value == PermissionStatus.denied) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Not Allow"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    openAppSettings();
-                  },
-                  child: const Text("Allow"),
-                ),
-              ],
-            );
-          },
-        );
-      }
-      print(value);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    _requestPermission(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -92,29 +63,31 @@ class HomeScreen extends StatelessWidget {
                       "Saved status logs",
                     ),
                   ),
-                  FutureBuilder<List<InfoRecord>>(
-                    future: DataRepository.watch(context).getRecords(
-                        deviceId: BlackOutManager.getManager.deviceId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.data != null) {
-                        final infoRecords = snapshot.data ?? [];
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: infoRecords.length,
-                          itemBuilder: (context, index) {
-                            final infoRecord = infoRecords[index];
-                            return TileListInfoRecord(infoRecord: infoRecord);
-                          },
-                        );
-                      } else {
-                        return const Center(
-                          child: SpinKitWave(
-                            color: Colors.orangeAccent,
-                          ),
-                        );
-                      }
-                    },
+                  Expanded(
+                    child: FutureBuilder<List<InfoRecord>>(
+                      future: DataRepository.watch(context).getRecords(
+                          deviceId: BlackOutManager.getManager.deviceId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data != null) {
+                          final infoRecords = snapshot.data ?? [];
+                          return ListView.builder(
+                            // shrinkWrap: true,
+                            itemCount: infoRecords.length,
+                            itemBuilder: (context, index) {
+                              final infoRecord = infoRecords[index];
+                              return TileListInfoRecord(infoRecord: infoRecord);
+                            },
+                          );
+                        } else {
+                          return const Center(
+                            child: SpinKitWave(
+                              color: Colors.orangeAccent,
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -123,5 +96,39 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  _requestPermission(BuildContext context) async {
+    Permission.location.status.then((value) {
+      if (value == PermissionStatus.denied &&
+          DataRepository.getRepository.askPermission == false) {
+        DataRepository.getRepository.askPermission = true;
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("App permission Dialog"),
+              content: const Text(
+                  "App need a location permission for wifi status data"),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Not Allow"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    openAppSettings();
+                  },
+                  child: const Text("Allow"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 }

@@ -22,33 +22,30 @@ class DataRepository extends ChangeNotifier {
 
   /// MARK: Local Storage
   static const localDataKey = "InfoRows";
-  Future<List<String>> getLocalDocs() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    return prefs.getStringList(localDataKey) ?? [];
-  }
-
   static Future<void> saveDataLocally(InfoRecord record) async {
     final prefs = await SharedPreferences.getInstance();
     final rows = prefs.getStringList(localDataKey) ?? [];
     final newDoc = json.encode(record.toMap(isoDate: true));
     rows.add(newDoc);
     await prefs.setStringList(localDataKey, rows);
+    try {
+      _instance.notifyListeners();
+    } catch (e) {}
   }
 
-  Future<int> locallySavedCount() async {
-    final rows = await getLocalDocs();
+  Future<int> get locallySavedCount async {
+    final prefs = await SharedPreferences.getInstance();
+    final rows = prefs.getStringList(localDataKey) ?? [];
     return rows.length;
   }
 
   Future<void> synchronize(String deviceId) async {
     final prefs = await SharedPreferences.getInstance();
-    final rows = await getLocalDocs();
+    final rows = prefs.getStringList(localDataKey) ?? [];
     if (rows.isEmpty) return;
     List<InfoRecord> records = rows
         .map((e) => InfoRecord.fromMap(jsonDecode(e), isoDate: true))
         .toList();
-    print(records.length);
     FirebaseFirestore.instance.runTransaction((transaction) {
       for (final record in records) {
         _instance
@@ -70,7 +67,7 @@ class DataRepository extends ChangeNotifier {
 
   ///MARK: Public API
   static const List<int> limitDaysRange = [10, 20, 50];
-
+  var askPermission = false;
   int _limit = limitDaysRange.first;
   int get limit => _limit;
 

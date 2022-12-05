@@ -26,7 +26,6 @@ class AppDrawer extends StatelessWidget {
                 child: DrawerHeader(
                   padding: EdgeInsets.zero,
                   margin: EdgeInsets.zero,
-                  // decoration: BoxDecoration(color: Colors.grey),
                   child: Stack(
                     children: [
                       const Positioned.fill(
@@ -87,7 +86,7 @@ class AppDrawer extends StatelessWidget {
               ),
               const Spacer(),
               FutureBuilder<int>(
-                  future: DataRepository.watch(context).locallySavedCount(),
+                  future: DataRepository.watch(context).locallySavedCount,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       return Text("Locally saved count: ${snapshot.data!}");

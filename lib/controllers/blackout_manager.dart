@@ -61,6 +61,7 @@ class BlackOutManager extends ChangeNotifier {
     await Workmanager().registerPeriodicTask(
       "1",
       _createInfoRow,
+      initialDelay: timeInterval,
       frequency: timeInterval,
     );
   }

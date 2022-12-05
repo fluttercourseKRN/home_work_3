@@ -16,7 +16,7 @@ class FloatingControlElements extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         FutureBuilder<int>(
-            future: DataRepository.watch(context).locallySavedCount(),
+            future: DataRepository.watch(context).locallySavedCount,
             initialData: 0,
             builder: (context, snapshot) {
               final count = snapshot.data!;
@@ -43,11 +43,17 @@ class FloatingControlElements extends StatelessWidget {
         ElevatedButton(
           onPressed: () async {
             final newRecord = await DeviceInfoManager.getCurrentInfo();
-            await DataRepository.saveDataLocally(newRecord);
-            // DataRepository.getRepository.addNewRecord(
-            //   deviceId: BlackOutManager.getManager.deviceId,
-            //   record: newRecord,
-            // );
+
+            // final value = await DataRepository.read(context).locallySavedCount;
+            // ScaffoldMessenger.of(context)
+            //     .showSnackBar(SnackBar(content: Text("${value}")));
+            // print(value);
+            // await DataRepository.saveDataLocally(newRecord);
+
+            DataRepository.getRepository.addNewRecord(
+              deviceId: BlackOutManager.getManager.deviceId,
+              record: newRecord,
+            );
           },
           child: const Text("Add Current Info"),
         ),
