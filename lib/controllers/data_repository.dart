@@ -20,33 +20,56 @@ class DataRepository extends ChangeNotifier {
   static DataRepository watch(BuildContext context) =>
       context.watch<DataRepository>();
 
-  static const List<int> limitDaysRange = [10, 20, 50];
+  /// MARK: Local Storage
   static const localDataKey = "InfoRows";
+  Future<List<String>> getLocalDocs() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getStringList(localDataKey) ?? [];
+  }
 
   static Future<void> saveDataLocally(InfoRecord record) async {
     final prefs = await SharedPreferences.getInstance();
     final rows = prefs.getStringList(localDataKey) ?? [];
-    rows.add(const JsonEncoder().convert(record.toMap()));
-    prefs.setStringList(localDataKey, rows);
+    final newDoc = json.encode(record.toMap(isoDate: true));
+    rows.add(newDoc);
+    await prefs.setStringList(localDataKey, rows);
   }
 
-  static Future<int> locallySavedCount(String deviceId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final rows = prefs.getStringList(localDataKey) ?? [];
+  Future<int> locallySavedCount() async {
+    final rows = await getLocalDocs();
     return rows.length;
   }
 
-  static Future<void> synchronize(String deviceId) async {
+  Future<void> synchronize(String deviceId) async {
     final prefs = await SharedPreferences.getInstance();
-    final rows = prefs.getStringList(localDataKey) ?? [];
-    if (rows.isNotEmpty) {
-      FirebaseFirestore.instance
-          .runTransaction((transaction) async => (transaction) {
-                return true;
-              });
-      // prefs.clear();
-    }
+    final rows = await getLocalDocs();
+    if (rows.isEmpty) return;
+    List<InfoRecord> records = rows
+        .map((e) => InfoRecord.fromMap(jsonDecode(e), isoDate: true))
+        .toList();
+    print(records.length);
+    FirebaseFirestore.instance.runTransaction((transaction) {
+      for (final record in records) {
+        _instance
+            ._getInfoRecordsPath(deviceId)
+            .doc(record.id)
+            .set(record.toMap());
+      }
+      return Future.value(true);
+    }).then(
+      (value) async {
+        await prefs.clear();
+        _instance.notifyListeners();
+      },
+      onError: (e) => print(e),
+    );
+
+    // .then((_) => prefs.clear());
   }
+
+  ///MARK: Public API
+  static const List<int> limitDaysRange = [10, 20, 50];
 
   int _limit = limitDaysRange.first;
   int get limit => _limit;
@@ -65,6 +88,7 @@ class DataRepository extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// MARK: Firestore
   static const _basePath = "devices";
   static const _recordsPath = "infoRecords";
   DocumentReference<Map<String, dynamic>> _getDeviceDataPath(String deviceId) {

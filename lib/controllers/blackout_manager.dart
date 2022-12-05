@@ -49,18 +49,6 @@ class BlackOutManager extends ChangeNotifier {
     );
   }
 
-  // @pragma('vm:entry-point')
-  // static Future<void> _callbackDispatcher() async {
-  //   Workmanager().executeTask((taskName, inputData) async {
-  //     final newRecord = await DeviceInfoManager.getCurrentInfo();
-  //     DataRepository.getRepository.addNewRecord(
-  //       deviceId: await DeviceInfoManager.deviceId,
-  //       record: newRecord,
-  //     );
-  //     return true;
-  //   });
-  // }
-
   Future<void> _changeWorkmanagerState() async {
     await _cancelWorkmanager();
     if (_instance._isAutoSnapshotEnabled == true) {

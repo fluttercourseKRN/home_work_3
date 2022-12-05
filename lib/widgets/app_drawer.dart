@@ -87,8 +87,7 @@ class AppDrawer extends StatelessWidget {
               ),
               const Spacer(),
               FutureBuilder<int>(
-                  future: DataRepository.locallySavedCount(
-                      BlackOutManager.getManager.deviceId),
+                  future: DataRepository.watch(context).locallySavedCount(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       return Text("Locally saved count: ${snapshot.data!}");

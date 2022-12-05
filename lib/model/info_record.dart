@@ -28,10 +28,10 @@ class InfoRecord {
         ' isInternetConnect: $isInternetConnect}';
   }
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap({bool isoDate = false}) {
     return {
       'id': id,
-      'dateTime': dateTime,
+      'dateTime': isoDate ? dateTime.toIso8601String() : dateTime,
       'chargingPercent': chargingPercent,
       'isCharging': isCharging,
       'isWirelessConnect': isWirelessConnect,
@@ -39,10 +39,12 @@ class InfoRecord {
     };
   }
 
-  factory InfoRecord.fromMap(Map<String, dynamic> map) {
+  factory InfoRecord.fromMap(Map<String, dynamic> map, {bool isoDate = false}) {
     return InfoRecord(
       id: map['id'] as String,
-      dateTime: map['dateTime'].toDate(),
+      dateTime: isoDate
+          ? DateTime.tryParse(map['dateTime'])
+          : map['dateTime'].toDate(),
       chargingPercent: map['chargingPercent'] as int,
       isCharging: map['isCharging'] as bool,
       isWirelessConnect: map['isWirelessConnect'] as bool,

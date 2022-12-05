@@ -7,8 +7,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../controllers/device_info_manager.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/floating_controlElements.dart';
 import '../widgets/menu_widget.dart';
 import '../widgets/tile_widgets/tile_current_info_record.dart';
 import '../widgets/tile_widgets/tile_list_info_record.dart';
@@ -57,16 +57,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       drawer: const AppDrawer(),
-      floatingActionButton: ElevatedButton(
-        onPressed: () async {
-          final newRecord = await DeviceInfoManager.getCurrentInfo();
-          DataRepository.getRepository.addNewRecord(
-            deviceId: BlackOutManager.getManager.deviceId,
-            record: newRecord,
-          );
-        },
-        child: const Text("Add Current Info"),
-      ),
+      floatingActionButton: const FloatingControlElements(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),

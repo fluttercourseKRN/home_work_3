@@ -22,7 +22,7 @@ Future<void> main() async {
 void callbackDispatcher() async {
   Workmanager().executeTask((taskName, inputData) async {
     final newRecord = await DeviceInfoManager.getCurrentInfo();
-    DataRepository.saveDataLocally(newRecord);
+    await DataRepository.saveDataLocally(newRecord);
     return Future.value(true);
   });
 }
